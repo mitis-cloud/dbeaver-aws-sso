@@ -8,7 +8,22 @@ Supports DBeaver's PostgreSQL, MySQL and MariaDB connection providers with their
 
 ## Install
 
-Requires **DBeaver Community 26.2.1** and **AWS CLI v2.22.0 or newer**. Use the current AWS CLI v2 release; the minimum enables its default PKCE browser flow.
+Requires **DBeaver Community 26.2.0 or newer** and **AWS CLI v2.22.0 or newer**. Use the current AWS CLI v2 release; the minimum enables its default PKCE browser flow. Installation is checked against the official 26.2.0 and 26.2.1 distributions.
+
+### Arch Linux's `dbeaver` package
+
+Use the native plugin package:
+
+```sh
+curl -fLO https://mitis-cloud.github.io/dbeaver-aws-sso/dbeaver-plugin-aws-sso-0.1.1-1-any.pkg.tar.zst
+sudo pacman -U ./dbeaver-plugin-aws-sso-0.1.1-1-any.pkg.tar.zst
+```
+
+Restart DBeaver afterward. Its package-provided hook registers the plugin automatically. Remove it with `sudo pacman -R dbeaver-plugin-aws-sso`.
+
+Arch's DBeaver 26.2.0 package ships an installer profile with stale internal bundle versions, including model `1.0.51`, although its actual model bundle is `2.0.46`. This breaks dependency resolution in **Install New Software**. The native package uses Arch's supported `/etc/dbeaver/bundles.d/` registration instead. Keep the native package updated through this download; DBeaver's update manager does not manage it.
+
+### Official DBeaver distributions
 
 1. Open **Help → Install New Software → Add**.
 2. Enter this update-site URL:
@@ -90,6 +105,17 @@ mvn -B -ntp clean verify
 ```
 
 The build produces `repository/target/repository/` and a zipped p2 update site in `repository/target/`.
+
+To package the verified build on Arch Linux:
+
+```sh
+cp plugins/cloud.mitis.dbeaver.aws.sso/target/cloud.mitis.dbeaver.aws.sso-0.1.1-SNAPSHOT.jar packaging/arch/plugin.jar
+cp LICENSE packaging/arch/LICENSE
+cd packaging/arch
+makepkg --nodeps
+```
+
+The PKGBUILD consumes these local build outputs; it downloads no binaries. CI performs the same packaging after the build/tests and official-distribution installation checks, then publishes the package beside the update site. The Arch build image is pinned to the official base image published 2026-09-17.
 
 The initial build uses Tycho **5.0.4**, JUnit **6.1.3**, Surefire **3.6.0**, and DBeaver **26.2.1** with Eclipse **2026-09**, checked against current stable releases at project creation. Local verification uses Maven **3.9.16**. Java 21 bytecode matches DBeaver's runtime requirement.
 

@@ -29,6 +29,34 @@ jobs:
           cache: maven
       - name: Build and test
         run: mvn -B -ntp clean verify
+      - name: Verify installation on supported DBeaver releases
+        if: matrix.os == 'ubuntu-24.04'
+        shell: bash
+        run: |
+          for entry in \
+            '26.2.0 f504e70a74763aa02e0b63d6842b85ca64526f682be457b3f30e330cc10748ed' \
+            '26.2.1 16d7bd01e84f8cd8f46d6976ac127fa25678ec010953c9b4dce41933af2067e8'; do
+            read -r version checksum <<< "$entry"
+            destination="$RUNNER_TEMP/dbeaver-$version"
+            mkdir -p "$destination"
+            archive="$destination/dbeaver.tar.gz"
+            curl --fail --location --retry 3 "https://github.com/dbeaver/dbeaver/releases/download/$version/dbeaver-ce-$version-linux-x86_64.tar.gz" -o "$archive"
+            echo "$checksum  $archive" | sha256sum --check
+            tar -xzf "$archive" -C "$destination"
+            app="$destination/dbeaver"
+            "$app/dbeaver" -nosplash -consoleLog -vm "$JAVA_HOME/bin/java" \
+              -application org.eclipse.equinox.p2.publisher.FeaturesAndBundlesPublisher \
+              -source "$app" -metadataRepository "file:$destination/metadata" \
+              -artifactRepository "file:$app" -publishArtifacts -compress
+            "$app/dbeaver" -nosplash -consoleLog -vm "$JAVA_HOME/bin/java" \
+              -application org.eclipse.equinox.p2.director \
+              -destination "$app" -bundlepool "$app" -profile DefaultProfile \
+              -repository "file:$GITHUB_WORKSPACE/repository/target/repository" \
+              -installIU cloud.mitis.dbeaver.aws.sso.feature.feature.group
+            "$app/dbeaver" -nosplash -consoleLog -vm "$JAVA_HOME/bin/java" \
+              -application org.eclipse.equinox.p2.director -listInstalledRoots \
+              | grep '^cloud.mitis.dbeaver.aws.sso.feature.feature.group/'
+          done
       - uses: actions/upload-artifact@v7.0.1
         with:
           name: update-site-${{ matrix.os }}
@@ -39,14 +67,40 @@ jobs:
         with:
           name: test-results-${{ matrix.os }}
           path: plugins/*/target/surefire-reports/
-      - uses: actions/upload-pages-artifact@v5.0.0
-        if: matrix.os == 'ubuntu-24.04' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+
+  arch-package:
+    needs: build
+    runs-on: ubuntu-24.04
+    container: archlinux:base@sha256:63c7b061c0c001cb7ce4f8d11b63d351c23e7f97121bc5c8bd5d9f431e615d7d
+    steps:
+      - name: Install packaging tools
+        run: pacman -Syu --noconfirm --needed git binutils fakeroot
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/download-artifact@v8.0.1
         with:
-          path: repository/target/repository/
+          name: update-site-ubuntu-24.04
+          path: update-site
+      - name: Build native Arch package
+        shell: bash
+        run: |
+          mkdir unpacked
+          bsdtar -xf update-site/*.zip -C unpacked
+          cp unpacked/plugins/cloud.mitis.dbeaver.aws.sso_*.jar packaging/arch/plugin.jar
+          cp LICENSE packaging/arch/LICENSE
+          useradd --create-home builder
+          chown -R builder:builder packaging/arch
+          cd packaging/arch
+          runuser -u builder -- makepkg --nodeps --noconfirm
+          bsdtar -tf ./*.pkg.tar.zst | grep '^etc/dbeaver/bundles.d/20-dbeaver-plugin-aws-sso.info$'
+      - uses: actions/upload-artifact@v7.0.1
+        with:
+          name: arch-package
+          path: packaging/arch/*.pkg.tar.zst
+          if-no-files-found: error
 
   publish:
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
-    needs: build
+    needs: [build, arch-package]
     runs-on: ubuntu-24.04
     permissions:
       pages: write
@@ -55,6 +109,19 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - uses: actions/download-artifact@v8.0.1
+        with:
+          name: update-site-ubuntu-24.04
+          path: update-site
+      - name: Unpack update site
+        run: unzip update-site/*.zip -d site
+      - uses: actions/download-artifact@v8.0.1
+        with:
+          name: arch-package
+          path: site
+      - uses: actions/upload-pages-artifact@v5.0.0
+        with:
+          path: site
       - uses: actions/configure-pages@v6.0.0
       - uses: actions/deploy-pages@v5.0.1
         id: deployment

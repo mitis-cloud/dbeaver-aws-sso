@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>cloud.mitis.dbeaver</groupId>
     <artifactId>dbeaver-aws-sso</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.1.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>DBeaver AWS SSO</name>
     <url>https://github.com/mitis-cloud/dbeaver-aws-sso</url>

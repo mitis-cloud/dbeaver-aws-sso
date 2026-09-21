@@ -2,14 +2,14 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: DBeaver AWS SSO
 Bundle-SymbolicName: cloud.mitis.dbeaver.aws.sso;singleton:=true
-Bundle-Version: 0.1.0.qualifier
+Bundle-Version: 0.1.1.qualifier
 Bundle-Vendor: Mitis Cloud
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-License: https://www.apache.org/licenses/LICENSE-2.0
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.swt,
- org.jkiss.dbeaver.model;bundle-version="[2.0.47,3.0.0)",
- org.jkiss.dbeaver.ui;bundle-version="[5.1.202,6.0.0)",
- org.jkiss.dbeaver.ui.editors.connection;bundle-version="[1.0.178,2.0.0)"
+ org.jkiss.dbeaver.model;bundle-version="[2.0.46,3.0.0)",
+ org.jkiss.dbeaver.ui;bundle-version="[5.1.201,6.0.0)",
+ org.jkiss.dbeaver.ui.editors.connection;bundle-version="[1.0.177,2.0.0)"
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: cloud.mitis.dbeaver.aws.sso

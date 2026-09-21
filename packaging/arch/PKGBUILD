@@ -1,0 +1,22 @@
+pkgname=dbeaver-plugin-aws-sso
+pkgver=0.1.1
+pkgrel=1
+pkgdesc='AWS IAM Identity Center browser sign-in and automatic RDS TLS for DBeaver'
+arch=('any')
+url='https://github.com/mitis-cloud/dbeaver-aws-sso'
+license=('Apache-2.0')
+depends=('dbeaver>=26.2.0' 'java-runtime>=21')
+source=('plugin.jar' 'LICENSE')
+sha256sums=('SKIP' 'SKIP')
+
+package() {
+    local bundle='cloud.mitis.dbeaver.aws.sso'
+    local version
+    version=$(bsdtar -xOf "$srcdir/plugin.jar" META-INF/MANIFEST.MF | sed -n 's/^Bundle-Version: //p' | tr -d '\r')
+    [[ "$version" == "$pkgver".* ]] || return 1
+    install -Dm644 "$srcdir/plugin.jar" "$pkgdir/usr/lib/dbeaver/plugins/${bundle}_${version}.jar"
+    install -dm755 "$pkgdir/etc/dbeaver/bundles.d"
+    printf '%s,%s,plugins/%s_%s.jar,4,false\n' "$bundle" "$version" "$bundle" "$version" \
+        > "$pkgdir/etc/dbeaver/bundles.d/20-${pkgname}.info"
+    install -Dm644 "$srcdir/LICENSE" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

@@ -4,3 +4,8 @@ bin/
 .settings/
 *.iml
 .DS_Store
+packaging/arch/plugin.jar
+packaging/arch/LICENSE
+packaging/arch/src/
+packaging/arch/pkg/
+packaging/arch/*.pkg.tar.*
