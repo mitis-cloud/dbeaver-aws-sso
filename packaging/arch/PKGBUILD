@@ -5,8 +5,10 @@ pkgdesc='AWS IAM Identity Center browser sign-in and automatic RDS TLS for DBeav
 arch=('any')
 url='https://github.com/mitis-cloud/dbeaver-aws-sso'
 license=('Apache-2.0')
+options=('!debug' '!strip')
 depends=('dbeaver>=26.2.0' 'java-runtime>=21')
 source=('plugin.jar' 'LICENSE')
+noextract=('plugin.jar')
 sha256sums=('SKIP' 'SKIP')
 
 package() {
