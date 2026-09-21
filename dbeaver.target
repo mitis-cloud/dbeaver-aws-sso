@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.8"?>
+<target name="DBeaver 26.2.1">
+    <locations>
+        <location includeAllPlatforms="false" includeMode="planner" includeSource="false" type="InstallableUnit">
+            <unit id="org.jkiss.dbeaver.model" version="2.0.47.202609210342"/>
+            <unit id="org.jkiss.dbeaver.ui" version="5.1.202.202609210342"/>
+            <unit id="org.jkiss.dbeaver.ui.editors.connection" version="1.0.178.202609210342"/>
+            <repository location="https://dbeaver.io/update/latest/"/>
+        </location>
+        <location includeAllPlatforms="false" includeMode="planner" includeSource="false" type="InstallableUnit">
+            <unit id="org.eclipse.platform.feature.group" version="0.0.0"/>
+            <repository location="https://download.eclipse.org/releases/2026-09/"/>
+        </location>
+    </locations>
+</target>

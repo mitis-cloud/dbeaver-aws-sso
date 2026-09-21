@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature id="cloud.mitis.dbeaver.aws.sso.feature" label="AWS IAM Identity Center for DBeaver" version="0.1.0.qualifier" provider-name="Mitis Cloud">
+    <description url="https://github.com/mitis-cloud/dbeaver-aws-sso">Connect to RDS with automatic AWS browser sign-in.</description>
+    <copyright>Copyright 2026 Mitis Cloud contributors</copyright>
+    <license url="https://www.apache.org/licenses/LICENSE-2.0">Licensed under the Apache License, Version 2.0.</license>
+    <plugin id="cloud.mitis.dbeaver.aws.sso" version="0.0.0" download-size="0" install-size="0" unpack="false"/>
+</feature>

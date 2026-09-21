@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+    <feature id="cloud.mitis.dbeaver.aws.sso.feature" version="0.0.0">
+        <category name="mitis"/>
+    </feature>
+    <category-def name="mitis" label="Mitis Cloud"/>
+</site>

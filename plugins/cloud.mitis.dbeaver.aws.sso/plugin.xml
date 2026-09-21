@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+    <extension point="org.jkiss.dbeaver.dataSourceAuth">
+        <authModel id="mitis_aws_sso" label="AWS IAM Identity Center" description="Browser sign-in with AWS CLI and RDS IAM database authentication" class="cloud.mitis.dbeaver.aws.sso.SsoAuthModel" desktop="true">
+            <datasource id="postgresql"/>
+            <datasource id="mysql"/>
+        </authModel>
+    </extension>
+    <extension point="org.jkiss.dbeaver.ui.propertyConfigurator">
+        <propertyConfigurator class="cloud.mitis.dbeaver.aws.sso.SsoAuthModel" uiClass="cloud.mitis.dbeaver.aws.sso.SsoAuthConfigurator"/>
+    </extension>
+</plugin>
