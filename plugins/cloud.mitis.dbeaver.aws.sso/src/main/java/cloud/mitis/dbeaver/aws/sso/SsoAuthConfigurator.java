@@ -57,7 +57,7 @@ public final class SsoAuthConfigurator extends DatabaseNativeAuthModelConfigurat
         GridData statusLayout = new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1);
         statusLayout.widthHint = 420;
         status.setLayoutData(statusLayout);
-        status.setText("Connect opens your browser when AWS sign-in is needed. Configure TLS in the SSL tab.");
+        status.setText("Connect opens your browser when AWS sign-in is needed. RDS certificates and verified TLS are configured automatically.");
         parent.addDisposeListener(event -> {
             if (profileJob != null) {
                 profileJob.cancel();
@@ -114,7 +114,7 @@ public final class SsoAuthConfigurator extends DatabaseNativeAuthModelConfigurat
                             String selected = profile.getText();
                             profile.setItems(profiles.toArray(String[]::new));
                             profile.setText(selected);
-                            status.setText("Connect opens your browser when AWS sign-in is needed. Configure TLS in the SSL tab.");
+                            status.setText("Connect opens your browser when AWS sign-in is needed. RDS certificates and verified TLS are configured automatically.");
                             status.getParent().layout();
                         }
                     });

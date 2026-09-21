@@ -29,8 +29,9 @@ Configure an IAM Identity Center profile once, using your organization's configu
 2. Set the host, port, database and database username.
 3. Select **Authentication → AWS IAM Identity Center**.
 4. Select your **AWS profile** and enter the **RDS region**.
-5. Configure certificate verification and the RDS CA certificate in DBeaver's **SSL** tab.
-6. Click **Connect** or **Test Connection**.
+5. Click **Connect** or **Test Connection**.
+
+RDS certificates and verified TLS are configured automatically. Leave the SSL tab at its defaults for a standard RDS/Aurora connection; no certificate files need downloading or selecting.
 
 If AWS can reuse or refresh your session, the connection opens directly. When interactive login is necessary, DBeaver opens your default browser and waits up to five minutes. Complete sign-in and consent; DBeaver resumes the connection automatically.
 
@@ -63,7 +64,8 @@ See AWS's [IAM database authentication guide](https://docs.aws.amazon.com/Amazon
 - Concurrent connections using the same executable and profile share one login attempt. Cancelling the initiating connection cancels that shared attempt. Cancelling a waiting connection does not cancel another connection's login.
 - A fresh IAM token is generated for every new physical JDBC connection. Existing database sessions do not need reconnecting when a token reaches its 15-minute expiry.
 - The plugin saves settings, not AWS credentials or generated DB tokens. Command output and authorization URLs are not written to plugin logs or error messages.
-- TLS defaults verify the server identity: PostgreSQL/MariaDB `verify-full`, MySQL `VERIFY_IDENTITY`. Explicit driver/SSL properties take precedence; configure the RDS CA trust appropriately.
+- TLS defaults verify the server identity: PostgreSQL/MariaDB `verify-full`, MySQL `VERIFY_IDENTITY`. The plugin supplies AWS's bundled RDS root CAs automatically, selecting the commercial, China or GovCloud bundle from the RDS region. Explicit connection CA files, trust stores and SSL properties take precedence.
+- Certificates are packaged with the plugin, so connection setup needs no certificate-download network request. CA updates arrive through plugin updates. The CA snapshot and official sources are documented in [certificates/README.md](plugins/cloud.mitis.dbeaver.aws.sso/certificates/README.md).
 
 The initial integration targets directly configured IAM Identity Center profiles. Profiles that require an interactive `credential_process`, role-chain-specific login handling, and headless DBeaver execution are outside the supported browser workflow.
 
@@ -75,7 +77,7 @@ The initial integration targets directly configured IAM Identity Center profiles
 
 **Sign-in succeeds but the database rejects the connection:** Check the database username, IAM database configuration, `rds-db:connect` resource ARN, RDS region, and signing endpoint.
 
-**TLS certificate error:** Configure the [RDS CA certificate](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/UsingWithRDS.SSL.html) and hostname verification in DBeaver's SSL/driver settings.
+**TLS certificate error:** Update the plugin and check that the connection hostname matches the RDS endpoint. Standard RDS/Aurora certificates are handled automatically. An explicit custom CA/trust store takes precedence; remove stale overrides to use the bundled certificates. Tunnels, custom DNS names and RDS Proxy can require different hostname/trust settings.
 
 **Generic AWS credential error:** Check the profile using AWS CLI separately. The plugin deliberately avoids including raw CLI output in errors because credential providers may put secrets there.
 
@@ -93,7 +95,7 @@ The initial build uses Tycho **5.0.4**, JUnit **6.1.3**, Surefire **3.6.0**, and
 
 `dbeaver.target` pins the DBeaver bundle versions. DBeaver publishes them through a rolling update URL; if upstream removes those artifacts, deliberately update the target and verify compatibility rather than silently selecting new API versions.
 
-The maintained tests exercise expired/missing sessions, warm sessions, bounded retries, concurrent login success/failure, token handling, argument boundaries, process cancellation/timeouts and pipe draining. They use a scripted CLI boundary and real disposable subprocesses; they do not log in to AWS or establish an RDS session.
+The maintained tests exercise expired/missing sessions, warm sessions, bounded retries, concurrent login success/failure, token handling, argument boundaries, process cancellation/timeouts and pipe draining. TLS tests use actual PostgreSQL, MySQL and MariaDB JDBC drivers with a local TLS endpoint to check trusted certificates, untrusted certificates and hostname mismatches. Test-only driver pins (42.7.13, 26.7.0 and 3.5.10 respectively) were checked against current stable releases; drivers are not shipped in the plugin. Tests do not log in to AWS or establish an RDS session.
 
 Full acceptance requires a real DBeaver connection: expire the test SSO session, click Connect, complete browser sign-in, run a query, then open another physical connection after token expiry. Repeat for each engine/platform you intend to support. Automated test success alone does not establish this end-to-end claim.
 

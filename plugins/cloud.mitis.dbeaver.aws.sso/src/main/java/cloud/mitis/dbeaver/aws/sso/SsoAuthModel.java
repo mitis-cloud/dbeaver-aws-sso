@@ -1,7 +1,6 @@
 package cloud.mitis.dbeaver.aws.sso;
 
 import java.net.URI;
-import java.util.Locale;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -75,10 +74,10 @@ public final class SsoAuthModel extends AuthModelDatabaseNative<SsoCredentials> 
         try {
             RdsConnection connection = new RdsConnection(credentials.profile, credentials.region,
                     hostname, Integer.parseInt(port), credentials.getUserName());
+            RdsTls.configure(container.getDriver().getDriverClassName(), credentials.region, properties, container);
             AwsCli cli = new AwsCli(AwsCli.locate(credentials.cliPath), new ProcessRunner());
             String token = AUTHENTICATION.authenticate(cli, connection, progress, uri -> openBrowser(uri, progress));
             collectConnectionProperties(container, credentials, configuration, properties, false);
-            applyTlsDefaults(container.getDriver().getDriverClassName(), properties);
             properties.setProperty(DBConstants.DATA_SOURCE_PROPERTY_PASSWORD, token);
             return credentials;
         } catch (IllegalArgumentException e) {
@@ -112,17 +111,6 @@ public final class SsoAuthModel extends AuthModelDatabaseNative<SsoCredentials> 
     @Override
     protected boolean isUserPasswordNeeded(DBPDataSourceContainer container) {
         return false;
-    }
-
-    static void applyTlsDefaults(String driverClass, Properties properties) {
-        String driver = driverClass.toLowerCase(Locale.ROOT);
-        if (driver.contains("postgresql")) {
-            properties.putIfAbsent("sslmode", "verify-full");
-        } else if (driver.contains("mariadb")) {
-            properties.putIfAbsent("sslMode", "verify-full");
-        } else {
-            properties.putIfAbsent("sslMode", "VERIFY_IDENTITY");
-        }
     }
 
     private static void openBrowser(URI uri, AuthProgress progress) throws AuthException {

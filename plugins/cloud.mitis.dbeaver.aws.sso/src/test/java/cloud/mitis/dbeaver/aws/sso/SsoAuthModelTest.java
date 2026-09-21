@@ -45,16 +45,16 @@ class SsoAuthModelTest {
     @Test
     void tlsDefaultsVerifyServerIdentityAndRespectExplicitSettings() {
         Properties postgres = new Properties();
-        SsoAuthModel.applyTlsDefaults("org.postgresql.Driver", postgres);
+        RdsTls.applyMode("org.postgresql.driver", postgres);
         assertEquals("verify-full", postgres.getProperty("sslmode"));
         postgres.setProperty("sslmode", "verify-ca");
-        SsoAuthModel.applyTlsDefaults("org.postgresql.Driver", postgres);
+        RdsTls.applyMode("org.postgresql.driver", postgres);
         assertEquals("verify-ca", postgres.getProperty("sslmode"));
         Properties mysql = new Properties();
-        SsoAuthModel.applyTlsDefaults("com.mysql.cj.jdbc.Driver", mysql);
+        RdsTls.applyMode("com.mysql.cj.jdbc.driver", mysql);
         assertEquals("VERIFY_IDENTITY", mysql.getProperty("sslMode"));
         Properties maria = new Properties();
-        SsoAuthModel.applyTlsDefaults("org.mariadb.jdbc.Driver", maria);
+        RdsTls.applyMode("org.mariadb.jdbc.driver", maria);
         assertEquals("verify-full", maria.getProperty("sslMode"));
     }
 }
