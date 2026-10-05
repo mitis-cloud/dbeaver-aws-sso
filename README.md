@@ -38,11 +38,11 @@ The update site is published from `main` after Linux, Windows and macOS builds a
 
 ### Update an installed plugin
 
-1. Open **Help → Check for Updates**.
-2. Select **AWS IAM Identity Center for DBeaver**, complete the update, and restart DBeaver.
-3. Verify the version under **Help → About DBeaver → Installation Details**, then reconnect using your existing settings.
+1. Open **Help → Installation Details → Installed Software**.
+2. Select **AWS IAM Identity Center for DBeaver** and click **Update**.
+3. Complete the update and restart DBeaver. Verify the version in **Installation Details**, then reconnect using your existing settings.
 
-If no update appears, check that `https://mitis-cloud.github.io/dbeaver-aws-sso/` is enabled under **Preferences → Install/Update → Available Software Sites**, then check again. Connection settings and AWS profiles are retained. Arch native-package installations use the package update command above instead.
+If no update appears, check that `https://mitis-cloud.github.io/dbeaver-aws-sso/` is enabled under **Preferences → Install/Update → Available Software Sites**, then retry the plugin's **Update** button. DBeaver's top-level **Help → Check for Updates** checks the DBeaver application itself. Connection settings and AWS profiles are retained. Arch native-package installations use the package update command above instead.
 
 ## Connect
 
