@@ -1,6 +1,7 @@
 package cloud.mitis.dbeaver.aws.sso;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -11,6 +12,7 @@ import java.util.Locale;
 import java.util.Properties;
 
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.URIUtil;
 import org.jkiss.dbeaver.DBException;
 import org.jkiss.dbeaver.model.DBPDataSourceContainer;
 import org.jkiss.dbeaver.model.app.DBACertificateStorage;
@@ -29,13 +31,17 @@ final class RdsTls {
             if (resource == null) {
                 throw new IOException("Bundled RDS certificates are missing");
             }
-            Path pem = Path.of(FileLocator.toFileURL(resource).toURI());
+            Path pem = certificatePath(resource);
             applyTrust(driver, properties, pem, container,
                     driver.contains("postgresql") || driver.contains("mariadb")
                             ? null : DBWorkbench.getPlatform().getCertificateStorage());
-        } catch (IOException | java.net.URISyntaxException e) {
+        } catch (IOException | URISyntaxException e) {
             throw new DBException("Could not load the plugin's bundled RDS certificates. Reinstall or update the plugin.", e);
         }
+    }
+
+    static Path certificatePath(URL resource) throws IOException, URISyntaxException {
+        return Path.of(URIUtil.toURI(FileLocator.toFileURL(resource)));
     }
 
     static String partition(String region) {

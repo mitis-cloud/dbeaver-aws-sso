@@ -1,5 +1,5 @@
 pkgname=dbeaver-plugin-aws-sso
-pkgver=0.1.1
+pkgver=0.1.2
 pkgrel=1
 pkgdesc='AWS IAM Identity Center browser sign-in and automatic RDS TLS for DBeaver'
 arch=('any')

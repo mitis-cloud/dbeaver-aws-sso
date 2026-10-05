@@ -3,6 +3,7 @@ package cloud.mitis.dbeaver.aws.sso;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.lang.reflect.Proxy;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.KeyStore;
@@ -79,6 +80,24 @@ class RdsTlsTest {
         RdsTls.applyTrust(driver, properties, pem, null, null);
         String key = driver.equals("postgresql") ? "sslrootcert" : "serverSslCert";
         assertEquals(pem, Path.of(properties.getProperty(key)));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"User", "User Name", "User#1", "User%20", "User+Name", "Utente-è"})
+    @SuppressWarnings("deprecation")
+    void equinoxCertificateFileUrlsPreserveSpecialCharacters(String name) throws Exception {
+        Path pem = Files.createDirectories(directory.resolve(name)).resolve("commercial.pem");
+        Files.copy(bundle("commercial"), pem);
+        // Equinox returns file URLs with unescaped filesystem characters.
+        URL resource = pem.toFile().toURL();
+        Path resolved = RdsTls.certificatePath(resource);
+        assertEquals(pem, resolved);
+        assertArrayEquals(Files.readAllBytes(pem), Files.readAllBytes(resolved));
+        Properties properties = new Properties();
+        RdsTls.applyMode("postgresql", properties);
+        RdsTls.applyTrust("postgresql", properties, resolved, null, null);
+        assertEquals(pem, Path.of(properties.getProperty("sslrootcert")));
+        assertEquals("verify-full", properties.getProperty("sslmode"));
     }
 
     static Path bundle(String partition) throws Exception {
