@@ -8,15 +8,15 @@ Supports DBeaver's PostgreSQL, MySQL and MariaDB connection providers with their
 
 ## Install
 
-Requires **DBeaver Community 26.2.0 or newer** and **AWS CLI v2.22.0 or newer**. Use the current AWS CLI v2 release; the minimum enables its default PKCE browser flow. Installation is checked against the official 26.2.0 and 26.2.1 distributions.
+Requires **DBeaver Community 26.2.0 or newer** and **AWS CLI v2.22.0 or newer**. Use the current AWS CLI v2 release; the minimum enables its default PKCE browser flow. Installation is checked against the official 26.2.0, 26.2.1 and 26.2.2 distributions.
 
 ### Arch Linux's `dbeaver` package
 
 Use the native plugin package:
 
 ```sh
-curl -fLO https://mitis-cloud.github.io/dbeaver-aws-sso/dbeaver-plugin-aws-sso-0.1.1-1-any.pkg.tar.zst
-sudo pacman -U ./dbeaver-plugin-aws-sso-0.1.1-1-any.pkg.tar.zst
+curl -fLO https://mitis-cloud.github.io/dbeaver-aws-sso/dbeaver-plugin-aws-sso-0.1.2-1-any.pkg.tar.zst
+sudo pacman -U ./dbeaver-plugin-aws-sso-0.1.2-1-any.pkg.tar.zst
 ```
 
 Restart DBeaver afterward. Its package-provided hook registers the plugin automatically. Remove it with `sudo pacman -R dbeaver-plugin-aws-sso`.
@@ -35,6 +35,14 @@ Arch's DBeaver 26.2.0 package ships an installer profile with stale internal bun
 3. Select **AWS IAM Identity Center for DBeaver**, finish installation, and restart DBeaver.
 
 The update site is published from `main` after Linux, Windows and macOS builds and tests pass. A zipped update site is also available in the [build artifacts](https://github.com/mitis-cloud/dbeaver-aws-sso/actions). Install it using **Add → Archive**.
+
+### Update an installed plugin
+
+1. Open **Help → Check for Updates**.
+2. Select **AWS IAM Identity Center for DBeaver**, complete the update, and restart DBeaver.
+3. Verify the version under **Help → About DBeaver → Installation Details**, then reconnect using your existing settings.
+
+If no update appears, check that `https://mitis-cloud.github.io/dbeaver-aws-sso/` is enabled under **Preferences → Install/Update → Available Software Sites**, then check again. Connection settings and AWS profiles are retained. Arch native-package installations use the package update command above instead.
 
 ## Connect
 
@@ -58,7 +66,7 @@ If AWS can reuse or refresh your session, the connection opens directly. When in
 | Signing hostname | Optional real RDS endpoint. Defaults to the original connection hostname before DBeaver rewrites it for a tunnel. |
 | Signing port | Optional real RDS port. Defaults to the original connection port. |
 
-AWS CLI discovery honors an explicit executable, then `AWS_CLI_PATH`, standard installation locations, and finally `PATH`. Custom AWS config/credentials locations and proxy settings use the environment inherited by DBeaver. Executable paths and profile names with spaces are supported.
+AWS CLI discovery honors an explicit executable or `AWS_CLI_PATH`; otherwise it checks DBeaver's `PATH` and standard installation locations, including user-local/XDG installs and Windows Program Files. Automatic discovery skips installations that cannot start or are older than v2.22.0. The profile status shows the selected executable; discovery errors list attempted paths. After changing an explicit path, click **Refresh** to reload profiles. Custom AWS config/credentials locations and proxy settings use the environment inherited by DBeaver. Executable paths and profile names with spaces are supported.
 
 For URL-based connections, or a manually established local tunnel, specify the signing hostname and port explicitly. IAM signing uses the RDS endpoint, not `localhost` or a custom DNS alias. TLS hostname verification through a tunnel still needs the driver's appropriate hostname-preserving configuration.
 
@@ -94,6 +102,8 @@ The initial integration targets directly configured IAM Identity Center profiles
 
 **TLS certificate error:** Update the plugin and check that the connection hostname matches the RDS endpoint. Standard RDS/Aurora certificates are handled automatically. An explicit custom CA/trust store takes precedence; remove stale overrides to use the bundled certificates. Tunnels, custom DNS names and RDS Proxy can require different hostname/trust settings.
 
+**Bundled RDS certificates / "Illegal character in path":** Update to plugin **0.1.2 or newer**. Earlier versions mishandled certificate-cache paths containing spaces or other special characters. This error occurs before the AWS CLI runs. Use the full executable path without surrounding quotes; `%USERPROFILE%` and other shell variables are not expanded in the executable setting.
+
 **Generic AWS credential error:** Check the profile using AWS CLI separately. The plugin deliberately avoids including raw CLI output in errors because credential providers may put secrets there.
 
 ## Development
@@ -109,7 +119,7 @@ The build produces `repository/target/repository/` and a zipped p2 update site i
 To package the verified build on Arch Linux:
 
 ```sh
-cp plugins/cloud.mitis.dbeaver.aws.sso/target/cloud.mitis.dbeaver.aws.sso-0.1.1-SNAPSHOT.jar packaging/arch/plugin.jar
+cp plugins/cloud.mitis.dbeaver.aws.sso/target/cloud.mitis.dbeaver.aws.sso-0.1.2-SNAPSHOT.jar packaging/arch/plugin.jar
 cp LICENSE packaging/arch/LICENSE
 cd packaging/arch
 makepkg --nodeps
@@ -117,7 +127,7 @@ makepkg --nodeps
 
 The PKGBUILD consumes these local build outputs; it downloads no binaries. CI performs the same packaging after the build/tests and official-distribution installation checks, then publishes the package beside the update site. The Arch build image is pinned to the official base image published 2026-09-17.
 
-The initial build uses Tycho **5.0.4**, JUnit **6.1.3**, Surefire **3.6.0**, and DBeaver **26.2.1** with Eclipse **2026-09**, checked against current stable releases at project creation. Local verification uses Maven **3.9.16**. Java 21 bytecode matches DBeaver's runtime requirement.
+The build uses Tycho **5.0.4**, JUnit **6.1.3**, Surefire **3.6.0**, and DBeaver **26.2.2** with Eclipse **2026-09**. The target was refreshed to the current stable DBeaver release after its rolling update site removed the 26.2.1 bundles. Local verification uses Maven **3.10.0**, the current stable Maven release. Java 21 bytecode matches DBeaver's runtime requirement.
 
 `dbeaver.target` pins the DBeaver bundle versions. DBeaver publishes them through a rolling update URL; if upstream removes those artifacts, deliberately update the target and verify compatibility rather than silently selecting new API versions.
 

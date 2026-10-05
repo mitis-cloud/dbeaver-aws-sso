@@ -107,14 +107,14 @@ public final class SsoAuthConfigurator extends DatabaseNativeAuthModelConfigurat
             @Override
             protected IStatus run(IProgressMonitor monitor) {
                 try {
-                    List<String> profiles = new AwsCli(AwsCli.locate(requestedPath), new ProcessRunner())
-                            .profiles(monitor::isCanceled);
+                    AwsCli cli = AwsCli.discover(requestedPath, new ProcessRunner(), monitor::isCanceled);
+                    List<String> profiles = cli.profiles(monitor::isCanceled);
                     display.asyncExec(() -> {
                         if (!profile.isDisposed() && !monitor.isCanceled() && cliPath.getText().equals(requestedPath)) {
                             String selected = profile.getText();
                             profile.setItems(profiles.toArray(String[]::new));
                             profile.setText(selected);
-                            status.setText("Connect opens your browser when AWS sign-in is needed. RDS certificates and verified TLS are configured automatically.");
+                            status.setText("AWS CLI: " + cli.executable() + "\nConnect opens your browser when AWS sign-in is needed.");
                             status.getParent().layout();
                         }
                     });

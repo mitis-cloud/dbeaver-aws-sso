@@ -35,7 +35,8 @@ jobs:
         run: |
           for entry in \
             '26.2.0 f504e70a74763aa02e0b63d6842b85ca64526f682be457b3f30e330cc10748ed' \
-            '26.2.1 16d7bd01e84f8cd8f46d6976ac127fa25678ec010953c9b4dce41933af2067e8'; do
+            '26.2.1 16d7bd01e84f8cd8f46d6976ac127fa25678ec010953c9b4dce41933af2067e8' \
+            '26.2.2 27b39a79a69ec70f9f95c6ee3b68514fcc7677acef93287e8df8e13cc53384d5'; do
             read -r version checksum <<< "$entry"
             destination="$RUNNER_TEMP/dbeaver-$version"
             mkdir -p "$destination"

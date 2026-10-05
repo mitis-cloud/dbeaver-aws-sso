@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: DBeaver AWS SSO
 Bundle-SymbolicName: cloud.mitis.dbeaver.aws.sso;singleton:=true
-Bundle-Version: 0.1.1.qualifier
+Bundle-Version: 0.1.2.qualifier
 Bundle-Vendor: Mitis Cloud
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-License: https://www.apache.org/licenses/LICENSE-2.0
