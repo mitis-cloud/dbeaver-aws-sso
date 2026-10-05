@@ -8,7 +8,7 @@ Supports DBeaver's PostgreSQL, MySQL and MariaDB connection providers with their
 
 ## Install
 
-Requires **DBeaver Community 26.2.0 or newer** and **AWS CLI v2.22.0 or newer**. Use the current AWS CLI v2 release; the minimum enables its default PKCE browser flow. Installation is checked against the official 26.2.0 and 26.2.1 distributions.
+Requires **DBeaver Community 26.2.0 or newer** and **AWS CLI v2.22.0 or newer**. Use the current AWS CLI v2 release; the minimum enables its default PKCE browser flow. Installation is checked against the official 26.2.0, 26.2.1 and 26.2.2 distributions.
 
 ### Arch Linux's `dbeaver` package
 
@@ -58,7 +58,7 @@ If AWS can reuse or refresh your session, the connection opens directly. When in
 | Signing hostname | Optional real RDS endpoint. Defaults to the original connection hostname before DBeaver rewrites it for a tunnel. |
 | Signing port | Optional real RDS port. Defaults to the original connection port. |
 
-AWS CLI discovery honors an explicit executable, then `AWS_CLI_PATH`, standard installation locations, and finally `PATH`. Custom AWS config/credentials locations and proxy settings use the environment inherited by DBeaver. Executable paths and profile names with spaces are supported.
+AWS CLI discovery honors an explicit executable or `AWS_CLI_PATH`; otherwise it checks DBeaver's `PATH` and standard installation locations, including user-local/XDG installs and Windows Program Files. Automatic discovery skips installations that cannot start or are older than v2.22.0. The profile status shows the selected executable; discovery errors list attempted paths. After changing an explicit path, click **Refresh** to reload profiles. Custom AWS config/credentials locations and proxy settings use the environment inherited by DBeaver. Executable paths and profile names with spaces are supported.
 
 For URL-based connections, or a manually established local tunnel, specify the signing hostname and port explicitly. IAM signing uses the RDS endpoint, not `localhost` or a custom DNS alias. TLS hostname verification through a tunnel still needs the driver's appropriate hostname-preserving configuration.
 
@@ -117,7 +117,7 @@ makepkg --nodeps
 
 The PKGBUILD consumes these local build outputs; it downloads no binaries. CI performs the same packaging after the build/tests and official-distribution installation checks, then publishes the package beside the update site. The Arch build image is pinned to the official base image published 2026-09-17.
 
-The initial build uses Tycho **5.0.4**, JUnit **6.1.3**, Surefire **3.6.0**, and DBeaver **26.2.1** with Eclipse **2026-09**, checked against current stable releases at project creation. Local verification uses Maven **3.9.16**. Java 21 bytecode matches DBeaver's runtime requirement.
+The build uses Tycho **5.0.4**, JUnit **6.1.3**, Surefire **3.6.0**, and DBeaver **26.2.2** with Eclipse **2026-09**. The target was refreshed to the current stable DBeaver release after its rolling update site removed the 26.2.1 bundles. Local verification uses Maven **3.10.0**, the current stable Maven release. Java 21 bytecode matches DBeaver's runtime requirement.
 
 `dbeaver.target` pins the DBeaver bundle versions. DBeaver publishes them through a rolling update URL; if upstream removes those artifacts, deliberately update the target and verify compatibility rather than silently selecting new API versions.
 

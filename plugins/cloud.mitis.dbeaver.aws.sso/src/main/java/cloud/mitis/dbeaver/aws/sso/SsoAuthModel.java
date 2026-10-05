@@ -75,7 +75,7 @@ public final class SsoAuthModel extends AuthModelDatabaseNative<SsoCredentials> 
             RdsConnection connection = new RdsConnection(credentials.profile, credentials.region,
                     hostname, Integer.parseInt(port), credentials.getUserName());
             RdsTls.configure(container.getDriver().getDriverClassName(), credentials.region, properties, container);
-            AwsCli cli = new AwsCli(AwsCli.locate(credentials.cliPath), new ProcessRunner());
+            AwsCli cli = AwsCli.discover(credentials.cliPath, new ProcessRunner(), progress);
             String token = AUTHENTICATION.authenticate(cli, connection, progress, uri -> openBrowser(uri, progress));
             collectConnectionProperties(container, credentials, configuration, properties, false);
             properties.setProperty(DBConstants.DATA_SOURCE_PROPERTY_PASSWORD, token);
